@@ -1,0 +1,77 @@
+------------------------------------------------
+
+클로저
+- 함수와 자신이 선언된 위치의 Lexical Environment 체인의 조합
+- 함수가 Lexical Environment 체인상의 외부 스코프의 식별자를 참조하는 경우
+  Lexical Environment체인을 기억한다.
+- 함수가 참조를 유지하는 동안에서는 LexicalEnvironment가 도달가능한 상태여서
+  GC의 대상이 되지 않는다.
+
+------------------------------------------------
+
+블록은 별도의 실행 컨텍스트를 생성하지는 않지만 별도의 Lexical Environment를 생성한다.
+(Block Lexical Environment)
+
+가비지 컬렉터는 객체를 참조하는 변수가 하나롣 있다는 수거대상에 포함시키지 않는다.
+
+------------------------------------------------
+
+클로저가 GC의 수거 대상에서 제외시킴으로 메모리 누수을 유발할 수 있다. (참조카운터)
+- 외부에 전달된 식별자에 null/undefined를 할당
+=> 접근 경로를 차단
+
+// 식별자
+var outer = (function() {
+  var a = 1;
+  var inner = function() {
+    return ++a;
+  }
+
+  return inner
+})()
+outer(); // 2
+outer(); // 3
+outer = null;
+
+// setInterval
+(function() {
+  var a = 0;
+  var intervalid = null;
+
+  var inner = function() {
+    if(++a > 10) {
+      clearInterval(intervalid)
+      inner = null;
+    }
+
+    console.log(a)
+  }
+  intervalid = setInterval(inner, 1000)
+})()
+
+// eventListener
+(function() {
+  var count = 0;
+  var button = document.createElement('button');
+  button.innerText = "click";
+
+  var clickHandler = function() {
+    console.log(++count, 'times clicked');
+    if(count >= 10) {
+      button.removeEventListener('click',clickHandler);
+      clickHandler = null;
+    }
+  }
+
+  button.addEventListener("click", clickHandler);
+  document.body.appendChild(button);
+})()
+
+------------------------------------------------
+
+클로저를 통해 외부에서 접근하는것에 대한 제어를 할 수 있다.
+- return한 것은 공개 멤버, 아닌것은 비공개 멤버
+
+클로저로 인해 부분적용 함수와 커링 함수라는 개념이 동작한다
+
+------------------------------------------------
