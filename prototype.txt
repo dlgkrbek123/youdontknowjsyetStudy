@@ -2,5 +2,99 @@
 
 js는 프로토타입 기반 언어
 - 클래스 기반언어는 상속을 사용
+- 프로토타입 기반의 언어는 어떤 객체를 prototype으로 삼고 이를 복제함으로서
+  상속과 유사한 기능을 구현
+
+------------------------------------------------
+
+var instance = new Constructor();
+- Constructor에 정의된 내용을 바탕으로 instance가 생성됨
+- instance에는 __proto__프로퍼티가 자동으로 부여되며 
+  Constructor.prototype을 참조한다.
+
+- Constructor.prototype는 객체임 (인스턴스가 사용할 메서드를 저장)
+- 모든 함수는 prototype이 자동으로 생성됨 
+- prototype에 constructor라는 프로퍼티가 있음 (자기자신을 참조)
+  __proto__를 통해 인스턴스와의 관계 유추
+
+- instance.__proto__를 통해 메서드에 접근
+- __proto__ 프로퍼티는 생략이 가능
+
+
+Constructor ====== .prototype
+  |                   |
+  |                   |
+  |                   |
+instance ======== .__proto__
+
+------------------------------------------------
+
+var Person = function(name) {
+  this._name = name;
+}
+
+Person.prototype.getName = function() {
+  return this._name;
+}
+
+var suzi = new Person('Suzi');
+// suzi.__proto__ === Person.prototype
+
+------------------------------------------------
+
+프로토타입 체인
+- __proto__가 연쇄적으로 이어진것
+- 객체의 프로퍼티를 검색할때 이를 순회하면서 찾는것을 프로토타입 체이닝
+  객체자신 -> __proto__를 따라가며 순회
+- 체인 최상위에는 Object.prototype을 만나게 된다.
+- prototype도 객체이므로 __proto__를 가진다.
+- 메소드 오버라이딩의 기반
+
+------------------------------------------------
+
+클래스
+- js는 프로토타입 기반이라 상속 개념이 없었다.
+- es6에서 class문법이 추가됬지만 prototype을 활용하고 있다.
+
+클래스는 superclass - subclass의 관계로 묶일 수 있다.
+(음식 - 과일 - 배)
+subclass는 superclass의 개념을 포함하면서 더 구체화된다.
+상속이 되면서 구체화된다.
+
+클래스의 속성을 지니는 개체를 인스턴스라고 한다. (사례)
+인스턴스는 하나의 클래스를 기반으로 만들어진다.
+
+스태틱 멤버는 인스턴스에 상속되지 않음 (Array.isArray)
+인스턴스 멤버는 인스턴스에 상속됨 (Array.prototype.push)
+
+!! .prototype 갈아치기로 클래스를 흉내 !!
+
+var Rectangle = function(width, height) {
+  this.width = width;
+  this.height = height;
+}
+Rectangle.prototype.getArea = function() {
+  return this.width * this.height;
+}
+
+
+var Bridge = function() {}; // 텅빈함수
+var Square = function(width) {
+  Rectangle.call(this, width, width);
+}
+Bridge.prototype = Rectangle.prototype;
+Square.prototype = new Bridge();
+Bridge.prototype.constructor = SuperClass
+Object.freeze(Square.prototype);
+
+// 아니면 Object.create()사용
+Square.prototype = Object.create(Rectangle.prototype);
+Object.freeze(prototype);
+
+------------------------------------------------
+
+instance instanceof Constructor; // boolean
+instance.getPrototypeOf();
+객체의 enumerable (열거가능성)
 
 ------------------------------------------------
